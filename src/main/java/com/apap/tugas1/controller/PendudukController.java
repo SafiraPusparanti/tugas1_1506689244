@@ -80,9 +80,10 @@ public class PendudukController {
         if (penduduk.getJenis_kelamin() == 1) {
             int tanggal = Integer.parseInt(tglLahir[0]) + 40;
             nik = nik + tanggal + tglLahir[1] + tglLahir[2].substring(2, 4);
+        } else {
+            nik = nik + tglLahir[0] + tglLahir[1] + tglLahir[2].substring(2, 4);
         }
 
-        nik = nik + tglLahir[0] + tglLahir[1] + tglLahir[2].substring(2, 4);
         int lastNikDigits = pendudukDAO.countAllSimiliarNik(nik + "%") + 1;
         nik = nik + String.format("%04d", lastNikDigits);
         penduduk.setNik(nik);
@@ -131,10 +132,11 @@ public class PendudukController {
         if (penduduk.getJenis_kelamin() == 1) {
             int tanggal = Integer.parseInt(tglLahir[0]) + 40;
             nik = nik + tanggal + tglLahir[1] + tglLahir[2].substring(2, 4);
+        } else {
+            nik = nik + tglLahir[0] + tglLahir[1] + tglLahir[2].substring(2, 4);
         }
 
         nikLama = penduduk.getNik();
-
         if (!nik.equals(nikLama.substring(0, 12))) {
             int lastNikDigits = pendudukDAO.countAllSimiliarNik(nik + "%") + 1;
             nik = nik + String.format("%04d", lastNikDigits);
