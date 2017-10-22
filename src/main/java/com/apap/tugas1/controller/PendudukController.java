@@ -2,20 +2,16 @@ package com.apap.tugas1.controller;
 
 import com.apap.tugas1.model.*;
 import com.apap.tugas1.service.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.StringTokenizer;
 
-@Slf4j
 @Controller
 public class PendudukController {
     @Autowired
@@ -36,35 +32,23 @@ public class PendudukController {
         return "index";
     }
 
-    //DONE
     @RequestMapping("/penduduk")
     public String view(Model model, @RequestParam(value = "nik") String nik) throws ParseException {
 
         PendudukModel penduduk = pendudukDAO.selectProfilPenduduk(nik);
 
-//        String tglLahir = penduduk.getNik().substring(6, 12);
-////        System.out.println(tglLahir);
-//        if (penduduk.getJenis_kelamin() == 1){
-//            int tanggal = Integer.parseInt(tglLahir.substring(0, 2)) - 40;
-//            tglLahir = String.format("%02d", tanggal) + tglLahir.substring(2, 6);
-////            System.out.println(tglLahir);
-//        }
-
-
         if (penduduk != null) {
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
             Date date = formatter.parse(penduduk.getTanggal_lahir());
-//        System.out.println(date);
+
             SimpleDateFormat formatString = new SimpleDateFormat("dd MMM yyyy");
             penduduk.setTanggal_lahir(formatString.format(date));
-//        System.out.println(penduduk.getTanggal_lahir());
 
             model.addAttribute("penduduk", penduduk);
             return "view-penduduk";
         } else {
             return "error/404";
         }
-
     }
 
     @RequestMapping("/penduduk/tambah")
@@ -79,7 +63,6 @@ public class PendudukController {
         return "form-penduduk";
     }
 
-    //DONE - IF ID_KELUARGA DOESN'T EXIST
     @RequestMapping(value = "/penduduk/tambah", method = RequestMethod.POST)
     public String submitPenduduk(Model model, PendudukModel penduduk) {
         String nik = pendudukDAO.fetchNikFromKelurahan(penduduk.getId_keluarga());
@@ -93,10 +76,6 @@ public class PendudukController {
         penduduk.setId(id+1);
 
         nik = nik.substring(0, 6);
-//        System.out.println("NIK apa?" + nik);
-
-//                System.out.println(penduduk.getTanggal_lahir());
-//
         String[] tglLahir = penduduk.getTanggal_lahir().split("-");
         if (penduduk.getJenis_kelamin() == 1) {
             int tanggal = Integer.parseInt(tglLahir[0]) + 40;
@@ -104,19 +83,13 @@ public class PendudukController {
         }
 
         nik = nik + tglLahir[0] + tglLahir[1] + tglLahir[2].substring(2, 4);
-//        System.out.println(nik);
-
         int lastNikDigits = pendudukDAO.countAllSimiliarNik(nik + "%") + 1;
-//        System.out.println(pendudukDAO.countAllSimiliarNik(nik+"%"));
-//        System.out.println(lastNikDigits);
         nik = nik + String.format("%04d", lastNikDigits);
-
-//        System.out.println("nik lengkap apa hayo? " + nik);
         penduduk.setNik(nik);
-//        System.out.println("masuk set nik tuh");
+
         penduduk.setTanggal_lahir(tglLahir[2] + "-" + tglLahir[1] + "-" + tglLahir[0]);
+
         pendudukDAO.addPenduduk(penduduk);
-//        System.out.println("berhasil add line 62 penduduk controller");
 
         model.addAttribute("title", "Tambah Penduduk");
         model.addAttribute("done", "Tambah");
@@ -127,14 +100,14 @@ public class PendudukController {
     @RequestMapping("/penduduk/ubah/{nik}")
     public String edit(Model model, @PathVariable(value = "nik") String nik) {
         PendudukModel penduduk = pendudukDAO.selectPenduduk(nik);
-        String[] tanggalSplit = penduduk.getTanggal_lahir().split("-");
-        penduduk.setTanggal_lahir(tanggalSplit[2] + "-" + tanggalSplit[1] + "-" + tanggalSplit[0]);
-//        penduduk.setNikLama(penduduk.getNik());
 
         if(penduduk == null){
             model.addAttribute("message", "NIK tidak ditemukan.");
             return "error/wrong-input";
         }
+
+        String[] tanggalSplit = penduduk.getTanggal_lahir().split("-");
+        penduduk.setTanggal_lahir(tanggalSplit[2] + "-" + tanggalSplit[1] + "-" + tanggalSplit[0]);
 
         model.addAttribute("title", "Ubah Penduduk");
         model.addAttribute("action", "/penduduk/ubah/{nik}");
@@ -142,7 +115,6 @@ public class PendudukController {
         return "form-penduduk";
     }
 
-    //SAMAKAN DENGAN TAMBAH
     @RequestMapping(value = "/penduduk/ubah/{nik}", method = RequestMethod.POST)
     public String submitEdit(Model model, PendudukModel penduduk, @PathVariable(value = "nik") String nikLama) {
 
@@ -162,14 +134,13 @@ public class PendudukController {
         }
 
         nikLama = penduduk.getNik();
-        System.out.println("nik lama " +nikLama);
-        System.out.println("nik baru " + nik);
-
 
         if (!nik.equals(nikLama.substring(0, 12))) {
             int lastNikDigits = pendudukDAO.countAllSimiliarNik(nik + "%") + 1;
             nik = nik + String.format("%04d", lastNikDigits);
             penduduk.setNik(nik);
+        } else {
+            penduduk.setNik(nikLama);
         }
 
         penduduk.setTanggal_lahir(tglLahir[2] + "-" + tglLahir[1] + "-" + tglLahir[0]);
@@ -181,17 +152,12 @@ public class PendudukController {
         return "form-penduduk-success";
     }
 
-    //cek keluarga; apakah ia dulu sebatang kara
     @RequestMapping(value = "/penduduk/mati", method = RequestMethod.POST)
     public String deactivatePost(Model model, PendudukModel penduduk) {
-
         pendudukDAO.deactivatePenduduk(penduduk);
-        System.out.println("Id keluarga:" + penduduk.getId_keluarga());
-//        System.out.println("berhasil add line 62 penduduk controller");
+
         if (pendudukDAO.countAliveFamilyMembers(penduduk.getId_keluarga()) == 0) {
-            System.out.println(pendudukDAO.countAliveFamilyMembers(penduduk.getId_keluarga()));
             keluargaDAO.deactivateKeluarga(penduduk.getId_keluarga());
-            System.out.println(penduduk.getId_keluarga());
         }
 
         model.addAttribute("penduduk", penduduk);
@@ -279,20 +245,16 @@ public class PendudukController {
         try {
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yyyy");
             Date date = formatter.parse(tglLahir);
-//                System.out.println(date);
 
             if (!tglLahir.equals(formatter.format(date))) {
-//                System.out.println("masuk if date equal");
                 model.addAttribute("message", "Format penulisan tanggal salah.");
                 return "error/wrong-input";
             }
-
             return null;
         } catch (ParseException e) {
 
             model.addAttribute("message", "Format penulisan tanggal salah.");
             return "error/wrong-input";
         }
-
     }
 }

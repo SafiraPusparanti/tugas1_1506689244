@@ -8,7 +8,6 @@ import com.apap.tugas1.service.KecamatanService;
 import com.apap.tugas1.service.KeluargaService;
 import com.apap.tugas1.service.KelurahanService;
 import com.apap.tugas1.service.KotaService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -25,7 +24,6 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
-@Slf4j
 @Controller
 public class KeluargaController {
     @Autowired
@@ -37,7 +35,6 @@ public class KeluargaController {
     @Autowired
     KotaService kotaDAO;
 
-    //Bug di 3101010102030001 dengan nik 3101015007140001 SEKARANG DONE
     @RequestMapping("/keluarga")
     public String view(Model model, @RequestParam(value="nomor_kk") String nomor_kk) throws ParseException {
         KeluargaModel keluarga = keluargaDAO.selectProfilKeluarga(nomor_kk);
@@ -61,7 +58,6 @@ public class KeluargaController {
                 SimpleDateFormat formatString = new SimpleDateFormat("dd MMM yyyy");
                 penduduk.setTanggal_lahir(formatString.format(date));
             }
-//        System.out.println(keluarga.getPenduduks());
 
             model.addAttribute("keluarga", keluarga);
             return "view-keluarga";
@@ -82,16 +78,12 @@ public class KeluargaController {
         return "form-keluarga";
     }
 
-    //DONE - SET KECAMATAN OPTION DROPDOWN SO THAT kelurahanDAO CAN BE REMOVED
     @RequestMapping(value="/keluarga/tambah", method= RequestMethod.POST)
     public String submitKeluarga(Model model, KeluargaModel keluarga) {
-        System.out.println("masuk method post");
         String idKecamatan = kecamatanDAO.selectIdKecamatan(keluarga.getKecamatan(), keluarga.getId_kota());
 
         if(idKecamatan == null) {
             model.addAttribute("message", "Kecamatan tidak ditemukan dan/atau kombinasi Kecamatan dengan Kota salah.");
-//            System.out.println(keluarga.getId_kota());
-//            System.out.println("masuk id kecamtan null");
             return "error/wrong-input";
         }
 
@@ -100,25 +92,22 @@ public class KeluargaController {
         if(idNkode != null) {
             int id = keluargaDAO.selectMaxId();
             keluarga.setId(id+1);
-//        System.out.println(idNkode);
+
             String nkk = idNkode.getKode_kelurahan();//mencari kelurahan dari isian nama keluarhan dan mengembalikan kode kelurahan
             keluarga.setId_kelurahan(Integer.toString(idNkode.getId()));
-//        System.out.println(nkk);
+
             nkk = nkk.substring(0, 6);
+
             LocalDate localDate = LocalDate.now();
             String date = DateTimeFormatter.ofPattern("dd-MM-yy").format(localDate);
-//        System.out.println(date);
             String[] splitDate = date.split("-");
             nkk += splitDate[0] + splitDate[1] + splitDate[2];
-            System.out.println(nkk);
+
             int lastNkkDigits = keluargaDAO.countAllSimiliarNkk(nkk + "%") + 1;
-//        System.out.println(pendudukDAO.countAllSimiliarNik(nik+"%"));
-//        System.out.println(lastNikDigits);
             nkk = nkk + String.format("%04d", lastNkkDigits);
 
             keluarga.setNomor_kk(nkk);
             keluarga.setIs_tidak_berlaku(0);
-//        System.out.println("masukistidakberlaqu");
 
             keluargaDAO.addKeluarga(keluarga);
 
@@ -143,13 +132,13 @@ public class KeluargaController {
         }
 
         model.addAttribute("title", "Ubah Keluarga");
-        model.addAttribute("action", "/keluarga/ubah");
+        model.addAttribute("action", "/keluarga/ubah/{nkk}");
         model.addAttribute("kotas", kotas);
         model.addAttribute("keluarga", keluarga);
         return "form-keluarga";
     }
 
-    @RequestMapping(value="/keluarga/ubah", method= RequestMethod.POST)
+    @RequestMapping(value="/keluarga/ubah/{nkk}", method= RequestMethod.POST)
     public String submitEdit(Model model, KeluargaModel keluarga){
         String idKecamatan = kecamatanDAO.selectIdKecamatan(keluarga.getKecamatan(), keluarga.getId_kota());
 
@@ -161,34 +150,26 @@ public class KeluargaController {
         KelurahanModel idNkode = kelurahanDAO.selectIdAndCodeKelurahan(keluarga.getKelurahan(), idKecamatan);
 
         if(idNkode != null) {
-            String nkkLama = keluarga.getNomor_kk();
-
-            String nkk = idNkode.getKode_kelurahan();//mencari kelurahan dari isian nama keluarhan dan mengembalikan kode kelurahan
+            String nkk = idNkode.getKode_kelurahan();
             keluarga.setId_kelurahan(Integer.toString(idNkode.getId()));
 
-            nkk = nkk.substring(0, 6) + keluarga.getNomor_kk().substring(6, 12);
-
             nkk = nkk.substring(0, 6);
+
             LocalDate localDate = LocalDate.now();
             String date = DateTimeFormatter.ofPattern("dd-MM-yy").format(localDate);
-//        System.out.println(date);
             String[] splitDate = date.split("-");
             nkk += splitDate[0] + splitDate[1] + splitDate[2];
-            System.out.println(nkk);
-            int lastNkkDigits = keluargaDAO.countAllSimiliarNkk(nkk + "%") + 1;
-//        System.out.println(pendudukDAO.countAllSimiliarNik(nik+"%"));
-//        System.out.println(lastNikDigits);
-            nkk = nkk + String.format("%04d", lastNkkDigits);
 
-            keluarga.setNomor_kk(nkk);
+            String nkkLama = keluarga.getNomor_kk();
 
-//        if(keluarga.getNomor_kk().substring(0, 12).equals(nkk)) {
-//            keluarga.setNomor_kk(nkk + keluarga.getNomor_kk().substring(12, 16));
-//        } else {
-//            int lastNkkDigits = keluargaDAO.countAllSimiliarNkk(nkk + "%") + 1;
-//            nkk = nkk + String.format("%04d", lastNkkDigits);
-//            keluarga.setNomor_kk(nkk);
-//        }
+            if (!nkk.equals(nkkLama.substring(0, 12))) {
+                int lastNkkDigits = keluargaDAO.countAllSimiliarNkk(nkk + "%") + 1;
+                nkk = nkk + String.format("%04d", lastNkkDigits);
+                keluarga.setNomor_kk(nkk);
+            } else {
+                keluarga.setNomor_kk(nkkLama);
+            }
+
             keluargaDAO.updateKeluarga(keluarga);
 
             model.addAttribute("title", "Ubah Keluarga");
