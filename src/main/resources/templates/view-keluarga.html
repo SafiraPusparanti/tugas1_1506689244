@@ -12,9 +12,61 @@
     <title>Lihat Data Keluarga</title>
 </head>
 <body>
-<th:block th:include="header :: header"></th:block>
+<th:block th:include="/fragments/fragment :: header"></th:block>
 <div class="container">
-    <h2 th:text="'Lihat Data Keluarga - ' + ${keluarga.nomor_kk}"></h2>
+    <h2 th:text="'Lihat Data Keluarga - ' + ${keluarga.nomor_kk}"></h2><br></br><br></br>
+
+    <div class="row">
+        <div class="col-3">
+            <a class="font-weight-bold">NKK</a><br></br>
+            <a class="font-weight-bold">Alamat</a><br></br>
+            <a class="font-weight-bold">RT/RW</a><br></br>
+            <a class="font-weight-bold">Kelurahan/Desa</a><br></br>
+            <a class="font-weight-bold">Kecamatan</a><br></br>
+            <a class="font-weight-bold">Kota</a><br></br>
+        </div>
+        <div class="col" >
+            <a th:text="${keluarga.nomor_kk}"></a><br></br>
+            <a th:text="${keluarga.alamat}"></a><br></br>
+            <a th:text="${keluarga.rt} + '/' + ${keluarga.rw}"></a><br></br>
+            <a th:text="${keluarga.kelurahan}"></a><br></br>
+            <a th:text="${keluarga.kecamatan}"></a><br></br>
+            <a th:text="${keluarga.kota}"></a><br></br>
+        </div>
+    </div><br></br>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>No</th>
+            <th>Nama Lengkap</th>
+            <th>NIK</th>
+            <th>Jenis Kelamin</th>
+            <th>Tempat Lahir</th>
+            <th>Tanggal Lahir</th>
+            <th>Agama</th>
+            <th>Pekerjaan</th>
+            <th>Status Perkawinan</th>
+            <th>Status dalam Keluarga</th>
+            <th>Kewarganegaraan</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="penduduk,iterationStatus: ${keluarga.penduduks}">
+            <td th:text="${iterationStatus.count}"></td>
+            <td th:text="${penduduk.nama}"></td>
+            <td th:text="${penduduk.nik}"></td>
+            <td th:text="${penduduk.jenis_kelamin==0}? 'Laki-laki' : 'Perempuan'"></td>
+            <td th:text="${penduduk.tempat_lahir}"></td>
+            <td th:text="${penduduk.tanggal_lahir}"></td>
+            <td th:text="${penduduk.agama}"></td>
+            <td th:text="${penduduk.pekerjaan}"></td>
+            <td th:text="${penduduk.status_perkawinan}"></td>
+            <td th:text="${penduduk.status_dalam_keluarga}"></td>
+            <td th:text="${penduduk.is_wni==1}? 'WNI' : 'WNA'"></td>
+        </tr>
+        </tbody>
+    </table>
 </div>
+<th:block th:include="/fragments/fragment :: footer"></th:block>
 </body>
 </html>

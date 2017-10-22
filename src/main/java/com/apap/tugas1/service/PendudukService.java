@@ -1,27 +1,32 @@
 package com.apap.tugas1.service;
 
-import com.apap.tugas1.dao.PendudukMapper;
 import com.apap.tugas1.model.PendudukModel;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-import static jdk.nashorn.internal.runtime.regexp.joni.Config.log;
+import java.util.List;
 
-@Slf4j
-@Service
-public class PendudukService {
-    @Autowired
-    private PendudukMapper pendudukMapper;
+public interface PendudukService {
 
-    public PendudukModel selectPenduduk(String nik){
-//        log.info("Select penduduk with NIK ()", nik);
-        return pendudukMapper.selectPenduduk(nik);
-    }
+    PendudukModel selectPenduduk(String nik);
 
-    public void addPenduduk(PendudukModel penduduk){
-        System.out.println("masuk serfis brah");
-        pendudukMapper.addPenduduk(penduduk);
-    }
+    PendudukModel selectProfilPenduduk(String nik);
 
+    List<PendudukModel> selectAllPenduduk(String idKelurahan);
+
+    PendudukModel selectYoungestPenduduk(String idKelurahan);
+
+    PendudukModel selectOldestPenduduk(String idKelurahan);
+
+    int selectMaxId();
+
+    String fetchNikFromKelurahan (int idKeluarga);
+
+    int countAllSimiliarNik (String nik);
+
+    void addPenduduk(PendudukModel penduduk);
+
+    void updatePenduduk(PendudukModel penduduk);
+
+    void deactivatePenduduk(PendudukModel penduduk);
+
+    int countAliveFamilyMembers (int idKeluarga);
 }

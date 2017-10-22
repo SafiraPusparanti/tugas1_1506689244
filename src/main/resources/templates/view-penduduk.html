@@ -12,9 +12,56 @@
     <title>Lihat Data Penduduk</title>
 </head>
 <body>
-<th:block th:include="header :: header"></th:block>
+<th:block th:include="/fragments/fragment :: header"></th:block>
     <div class="container">
-        <h2 th:text="'Lihat Data Penduduk - ' + ${penduduk.nik}"></h2>
+        <h2 th:text="'Lihat Data Penduduk - ' + ${penduduk.nik}"></h2><br></br><br></br>
+
+        <div class="row">
+            <div class="col-4">
+                <a class="font-weight-bold">NIK</a><br></br>
+                <a class="font-weight-bold">Nama</a><br></br>
+                <a class="font-weight-bold">Tempat/Tanggal Lahir</a><br></br>
+                <a class="font-weight-bold">Alamat</a><br></br>
+                <a class="font-weight-bold">RT/RW</a><br></br>
+                <a class="font-weight-bold">Kelurahan/Desa</a><br></br>
+                <a class="font-weight-bold">Kecamatan</a><br></br>
+                <a class="font-weight-bold">Kota</a><br></br>
+                <a class="font-weight-bold">Golongan Darah</a><br></br>
+                <a class="font-weight-bold">Agama</a><br></br>
+                <a class="font-weight-bold">Status Perkawinan</a><br></br>
+                <a class="font-weight-bold">Pekerjaan</a><br></br>
+                <a class="font-weight-bold">Kewarganegaraan</a><br></br>
+                <a class="font-weight-bold">Status Kematian</a><br></br>
+            </div>
+            <div class="col" >
+                <a th:text="${penduduk.nik}"></a><br></br>
+                <a th:text="${penduduk.nama}"></a><br></br>
+                <a th:text="${penduduk.tempat_lahir} + ', ' + ${penduduk.tanggal_lahir}"></a><br></br>
+                <a th:text="${penduduk.keluarga.alamat}"></a><br></br>
+                <a th:text="${penduduk.keluarga.rt} + '/' + ${penduduk.keluarga.rw}"></a><br></br>
+                <a th:text="${penduduk.keluarga.kelurahan}"></a><br></br>
+                <a th:text="${penduduk.keluarga.kecamatan}"></a><br></br>
+                <a th:text="${penduduk.keluarga.kota}"></a><br></br>
+                <a th:text="${penduduk.golongan_darah}"></a><br></br>
+                <a th:text="${penduduk.agama}"></a><br></br>
+                <a th:text="${penduduk.status_perkawinan}"></a><br></br>
+                <a th:text="${penduduk.pekerjaan}"></a><br></br>
+                <a th:text="${penduduk.is_wni==1}? 'WNI' : 'WNA'"></a><br></br>
+                <a th:text="${penduduk.is_wafat==1}? 'Wafat' : 'Hidup'"></a><br></br>
+            </div>
+        </div><br></br><br></br>
+
+        <form th:if="${penduduk.is_wafat} == 0" th:action="@{/penduduk/mati}" method="post" th:object="${penduduk}">
+            <div class="form-group">
+                <input type="hidden" class="form-control" id="nik" th:value="#{penduduk.nik}" th:field="*{nik}"/>
+            </div>
+            <div class="form-group">
+                <input type="hidden" class="form-control" id="idKeluarga" th:value="${penduduk.id_keluarga}" th:field="*{id_keluarga}"/>
+            </div>
+            <button type="submit" class="btn btn-danger">Nonaktifkan</button>
+        </form>
+
     </div>
+<th:block th:include="/fragments/fragment :: footer"></th:block>
 </body>
 </html>
